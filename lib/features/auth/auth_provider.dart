@@ -7,9 +7,18 @@ class AuthCredentialProvider with ChangeNotifier {
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
+  bool _google_login_isloading = false;
+  bool get googleLoginLoading => _google_login_isloading;
+  bool _email_login_isloading = false;
+  bool get emailLoginLoading => _email_login_isloading;
+  bool _email_register_isloading = false;
+  bool get emailRegisterLoading => _email_register_isloading;
+
   User? get currentUser => _auth.currentUser;
 
   Future<UserCredential?> signInWithGoogle(BuildContext context) async {
+    _google_login_isloading = true;
+    notifyListeners();
     try {
       final GoogleSignInAccount? googleUser = await GoogleSignIn().signIn();
       if (googleUser == null) return null; // User cancelled
@@ -37,6 +46,9 @@ class AuthCredentialProvider with ChangeNotifier {
     } catch (e) {
       _showError(context, 'Google sign-in failed: $e');
       return null;
+    } finally {
+      _google_login_isloading = false;
+      notifyListeners();
     }
   }
 
@@ -47,6 +59,8 @@ class AuthCredentialProvider with ChangeNotifier {
     required String password,
     String? profileImageBase64,
   }) async {
+    _email_register_isloading = true;
+    notifyListeners();
     try {
       UserCredential userCredential = await _auth.createUserWithEmailAndPassword(
         email: email.trim(),
@@ -66,6 +80,9 @@ class AuthCredentialProvider with ChangeNotifier {
     } on FirebaseAuthException catch (e) {
       _showError(context, e.message ?? e.toString());
       return null;
+    } finally {
+      _email_register_isloading = false;
+      notifyListeners();
     }
   }
 
@@ -74,6 +91,8 @@ class AuthCredentialProvider with ChangeNotifier {
     required String email,
     required String password,
   }) async {
+    _email_login_isloading = true;
+    notifyListeners();
     try {
       final credential = await _auth.signInWithEmailAndPassword(
         email: email.trim(),
@@ -93,6 +112,9 @@ class AuthCredentialProvider with ChangeNotifier {
     } on FirebaseAuthException catch (e) {
       _showError(context, e.message ?? 'Unknown error');
       return null;
+    } finally {
+      _email_login_isloading = false;
+      notifyListeners();
     }
   }
 

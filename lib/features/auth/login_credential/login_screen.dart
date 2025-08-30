@@ -170,11 +170,17 @@ class _LoginScreenState extends State<LoginScreen> {
                       height: displaySize.height * .06,
                       width: displaySize.width,
                       child: ElevatedButton(
-                        onPressed: () {
-                          if (_formKey.currentState!.validate()) {
-                            submit(emailcontroller.text, passwordcontroller.text);
-                          }
-                        },
+                        onPressed:
+                            Provider.of<AuthCredentialProvider>(
+                              context,
+                              listen: false,
+                            ).emailLoginLoading
+                            ? null
+                            : () {
+                                if (_formKey.currentState!.validate()) {
+                                  submit(emailcontroller.text, passwordcontroller.text);
+                                }
+                              },
                         style: ButtonstyleWidget().elevated_filled_apptheme(context),
                         child: txt(
                           'Login',
@@ -211,19 +217,25 @@ class _LoginScreenState extends State<LoginScreen> {
                       height: displaySize.height * .06,
                       width: displaySize.width,
                       child: ElevatedButton(
-                        onPressed: () async {
-                          final provider = Provider.of<AuthCredentialProvider>(
-                            context,
-                            listen: false,
-                          );
-                          final result = await provider.signInWithGoogle(context);
-                          if (result != null && mounted) {
-                            Navigator.pushReplacement(
+                        onPressed:
+                            Provider.of<AuthCredentialProvider>(
                               context,
-                              MaterialPageRoute(builder: (context) => MainScreen()),
-                            );
-                          }
-                        },
+                              listen: false,
+                            ).googleLoginLoading
+                            ? null
+                            : () async {
+                                final provider = Provider.of<AuthCredentialProvider>(
+                                  context,
+                                  listen: false,
+                                );
+                                final result = await provider.signInWithGoogle(context);
+                                if (result != null && mounted) {
+                                  Navigator.pushReplacement(
+                                    context,
+                                    MaterialPageRoute(builder: (context) => MainScreen()),
+                                  );
+                                }
+                              },
                         style: ButtonstyleWidget().elevated_boardered_sociallogin(context),
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.center,

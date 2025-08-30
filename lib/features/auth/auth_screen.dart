@@ -8,9 +8,6 @@ import 'package:clikz_studio/features/dashboard/main_screen.dart';
 import 'package:clikz_studio/widgets/button_style_widget.dart';
 import 'package:clikz_studio/widgets/custom_widgets.dart';
 import 'package:flutter/material.dart';
-import 'package:google_sign_in/google_sign_in.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:provider/provider.dart';
 import 'package:clikz_studio/features/auth/auth_provider.dart';
 
@@ -145,19 +142,25 @@ class _AuthScreenState extends State<AuthScreen> {
                     height: displaySize.height * .06,
                     width: displaySize.width,
                     child: ElevatedButton(
-                      onPressed: () async {
-                        final provider = Provider.of<AuthCredentialProvider>(
-                          context,
-                          listen: false,
-                        );
-                        final result = await provider.signInWithGoogle(context);
-                        if (result != null && mounted) {
-                          Navigator.pushReplacement(
+                      onPressed:
+                          Provider.of<AuthCredentialProvider>(
                             context,
-                            MaterialPageRoute(builder: (context) => MainScreen()),
-                          );
-                        }
-                      },
+                            listen: false,
+                          ).googleLoginLoading
+                          ? null
+                          : () async {
+                              final provider = Provider.of<AuthCredentialProvider>(
+                                context,
+                                listen: false,
+                              );
+                              final result = await provider.signInWithGoogle(context);
+                              if (result != null && mounted) {
+                                Navigator.pushReplacement(
+                                  context,
+                                  MaterialPageRoute(builder: (context) => MainScreen()),
+                                );
+                              }
+                            },
                       style: ButtonstyleWidget().elevated_boardered_sociallogin(context),
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.center,

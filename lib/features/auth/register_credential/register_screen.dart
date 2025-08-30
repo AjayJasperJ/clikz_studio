@@ -157,7 +157,13 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       height: displaySize.height * .06,
                       width: displaySize.width,
                       child: ElevatedButton(
-                        onPressed: () => _register(context),
+                        onPressed:
+                            Provider.of<AuthCredentialProvider>(
+                              context,
+                              listen: false,
+                            ).emailRegisterLoading
+                            ? null
+                            : () => _register(context),
                         style: ButtonstyleWidget().elevated_filled_apptheme(context),
                         child: txt(
                           'Sign Up',
@@ -193,39 +199,45 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     SizedBox(
                       height: displaySize.height * .06,
                       width: displaySize.width,
-                      child: ElevatedButton(
-                        onPressed: () async {
-                          final provider = Provider.of<AuthCredentialProvider>(
+                      child:
+                          Provider.of<AuthCredentialProvider>(
                             context,
                             listen: false,
-                          );
-                          final result = await provider.signInWithGoogle(context);
-                          if (result != null && mounted) {
-                            Navigator.pushReplacement(
-                              context,
-                              MaterialPageRoute(builder: (context) => MainScreen()),
-                            );
-                          }
-                        },
-                        style: ButtonstyleWidget().elevated_boardered_sociallogin(context),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            SizedBox(
-                              height: displaySize.height * .03,
-                              width: displaySize.height * .03,
-                              child: Image.asset(images.googlelogo),
+                          ).googleLoginLoading
+                          ? null
+                          : ElevatedButton(
+                              onPressed: () async {
+                                final provider = Provider.of<AuthCredentialProvider>(
+                                  context,
+                                  listen: false,
+                                );
+                                final result = await provider.signInWithGoogle(context);
+                                if (result != null && mounted) {
+                                  Navigator.pushReplacement(
+                                    context,
+                                    MaterialPageRoute(builder: (context) => MainScreen()),
+                                  );
+                                }
+                              },
+                              style: ButtonstyleWidget().elevated_boardered_sociallogin(context),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  SizedBox(
+                                    height: displaySize.height * .03,
+                                    width: displaySize.height * .03,
+                                    child: Image.asset(images.googlelogo),
+                                  ),
+                                  SizedBox(width: displaySize.height * .01),
+                                  txt(
+                                    'Continue with google',
+                                    font: Font.medium,
+                                    color: theme.colorScheme.onSurface,
+                                    size: sizes.titleMedium(context),
+                                  ),
+                                ],
+                              ),
                             ),
-                            SizedBox(width: displaySize.height * .01),
-                            txt(
-                              'Continue with google',
-                              font: Font.medium,
-                              color: theme.colorScheme.onSurface,
-                              size: sizes.titleMedium(context),
-                            ),
-                          ],
-                        ),
-                      ),
                     ),
                   ],
                 ),
