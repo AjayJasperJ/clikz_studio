@@ -1,3 +1,14 @@
+import 'package:clikz_studio/app.dart';
+import 'package:clikz_studio/core/constants/colors.dart';
+import 'package:clikz_studio/core/constants/icons.dart';
+import 'package:clikz_studio/core/constants/images.dart';
+import 'package:clikz_studio/core/constants/sizes.dart';
+import 'package:clikz_studio/features/auth/login_credential/login_screen.dart';
+import 'package:clikz_studio/features/auth/register_credential/register_widget.dart';
+import 'package:clikz_studio/widgets/button_style_widget.dart';
+import 'package:clikz_studio/widgets/custom_widgets.dart';
+import 'package:clikz_studio/widgets/txt_field_widget.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -16,66 +27,208 @@ class _RegisterScreenState extends State<RegisterScreen> {
   final TextEditingController _passwordController = TextEditingController();
   final TextEditingController _confirmPasswordController = TextEditingController();
 
-  String _selectedRole = 'Auditor'; // Default role
-
-  bool _isLoading = false;
   String? _error;
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    List<Map<String, dynamic>> fieldData = [
+      {
+        'hinttext': 'Username',
+        'controller': _nameController,
+        'validate': RegisterWidget.validateName,
+        'keyboard': null,
+        'prefix': icons.person,
+        'suffix': null,
+      },
+      {
+        'hinttext': 'Email Id',
+        'controller': _emailController,
+        'validate': RegisterWidget.validateEmail,
+        'keyboard': null,
+        'prefix': icons.mail,
+        'suffix': null,
+      },
+      {
+        'hinttext': 'Password',
+        'controller': _passwordController,
+        'validate': RegisterWidget.validatePassword,
+        'keyboard': null,
+        'prefix': icons.lock,
+        'suffix': icons.unhide,
+      },
+      {
+        'hinttext': 'Confirm Password',
+        'controller': _confirmPasswordController,
+        'validate': RegisterWidget.validatePassword,
+        'keyboard': null,
+        'prefix': icons.lock,
+        'suffix': icons.hidden,
+      },
+    ];
     return Scaffold(
-      appBar: AppBar(title: Text('Register')),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: _isLoading
-            ? Center(child: CircularProgressIndicator())
-            : Form(
-                key: _formKey,
-                child: ListView(
+      body: SafeArea(
+        child: Wpad(
+          child: SingleChildScrollView(
+            child: Column(
+              children: [
+                backbutton(),
+                SizedBox(height: displaySize.height * .02),
+                GestureDetector(
+                  onTap: () {},
+                  child: Column(
+                    children: [
+                      Container(
+                        height: displaySize.height * .14,
+                        width: displaySize.height * .14,
+                        decoration: BoxDecoration(shape: BoxShape.circle),
+                        child: ClipOval(child: Image.asset(images.emptyprofile, fit: BoxFit.cover)),
+                      ),
+                      SizedBox(height: displaySize.height * .01),
+                      txt("+ Add Image", font: Font.medium),
+                    ],
+                  ),
+                ),
+                SizedBox(height: displaySize.height * .02),
+                Form(
+                  key: _formKey,
+                  child: ListView.builder(
+                    shrinkWrap: true,
+                    physics: NeverScrollableScrollPhysics(),
+                    itemCount: fieldData.length,
+                    itemBuilder: (context, index) {
+                      final value = fieldData[index];
+                      return Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          SizedBox(height: displaySize.height * .01),
+                          txtfield(
+                            hintText: value['hinttext'],
+                            validator: value['validate'],
+                            controller: value['controller'],
+                            keyboardtype: value['keyboard'],
+                            prefixIcon: txtfieldicon(context, value['prefix']),
+                            suffixIcon: value['suffix'] != null
+                                ? txtfieldicon(context, value['suffix'])
+                                : null,
+                          ),
+                        ],
+                      );
+                    },
+                  ),
+                ),
+                SizedBox(height: displaySize.height * .03),
+                Column(
                   children: [
-                    if (_error != null) Text(_error!, style: TextStyle(color: Colors.red)),
-                    TextFormField(
-                      controller: _nameController,
-                      decoration: InputDecoration(labelText: 'Full Name'),
-                      validator: (value) =>
-                          value == null || value.isEmpty ? 'Enter your name' : null,
+                    SizedBox(
+                      height: displaySize.height * .06,
+                      width: displaySize.width,
+                      child: ElevatedButton(
+                        onPressed: () {},
+                        style: ButtonstyleWidget().elevated_filled_apptheme(context),
+                        child: txt(
+                          'Sign Up',
+                          color: theme.colorScheme.onPrimary,
+                          font: Font.medium,
+                          size: sizes.titleMedium(context),
+                        ),
+                      ),
                     ),
-                    TextFormField(
-                      controller: _emailController,
-                      decoration: InputDecoration(labelText: 'Email'),
-                      keyboardType: TextInputType.emailAddress,
-                      validator: (value) =>
-                          value != null && value.contains('@') ? null : 'Enter valid email',
+                    SizedBox(height: displaySize.height * .02),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: Divider(
+                            indent: displaySize.height * .01,
+                            endIndent: displaySize.height * .01,
+                            thickness: .5,
+                            color: colors.clikz_grey_1,
+                          ),
+                        ),
+                        txt('Or', color: colors.clikz_grey_1),
+                        Expanded(
+                          child: Divider(
+                            indent: displaySize.height * .01,
+                            endIndent: displaySize.height * .01,
+                            thickness: .5,
+                            color: colors.clikz_grey_1,
+                          ),
+                        ),
+                      ],
                     ),
-                    TextFormField(
-                      controller: _passwordController,
-                      decoration: InputDecoration(labelText: 'Password'),
-                      obscureText: true,
-                      validator: (value) =>
-                          value != null && value.length >= 6 ? null : 'Min 6 characters',
+                    SizedBox(height: displaySize.height * .02),
+                    SizedBox(
+                      height: displaySize.height * .06,
+                      width: displaySize.width,
+                      child: ElevatedButton(
+                        onPressed: () {},
+                        style: ButtonstyleWidget().elevated_boardered_sociallogin(context),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            SizedBox(
+                              height: displaySize.height * .03,
+                              width: displaySize.height * .03,
+                              child: Image.asset(images.googlelogo),
+                            ),
+                            SizedBox(width: displaySize.height * .01),
+                            txt(
+                              'Continue with google',
+                              font: Font.medium,
+                              color: theme.colorScheme.onSurface,
+                              size: sizes.titleMedium(context),
+                            ),
+                          ],
+                        ),
+                      ),
                     ),
-                    TextFormField(
-                      controller: _confirmPasswordController,
-                      decoration: InputDecoration(labelText: 'Confirm Password'),
-                      obscureText: true,
-                      validator: (value) =>
-                          value == _passwordController.text ? null : 'Passwords do not match',
-                    ),
-                    DropdownButtonFormField<String>(
-                      value: _selectedRole,
-                      onChanged: (val) => setState(() => _selectedRole = val!),
-                      items: [
-                        'Admin',
-                        'Auditor',
-                        'Staff',
-                      ].map((role) => DropdownMenuItem(value: role, child: Text(role))).toList(),
-                      decoration: InputDecoration(labelText: 'Role'),
-                    ),
-                    SizedBox(height: 20),
-                    ElevatedButton(onPressed: _register, child: Text('Register')),
                   ],
                 ),
+              ],
+            ),
+          ),
+        ),
+      ),
+      bottomNavigationBar: Container(
+        height: displaySize.height * .08,
+        padding: EdgeInsets.symmetric(horizontal: displaySize.width * .04),
+        child: Column(
+          children: [
+            Expanded(
+              child: Center(
+                child: Text.rich(
+                  TextSpan(
+                    children: [
+                      TextSpan(
+                        text: "Already have an account? ",
+                        style: TextStyle(
+                          fontSize: displaySize.height * .016,
+                          fontWeight: Font.medium.weight,
+                        ),
+                      ),
+                      TextSpan(
+                        text: "Log In",
+                        recognizer: TapGestureRecognizer()
+                          ..onTap = () {
+                            Navigator.pushReplacement(
+                              context,
+                              MaterialPageRoute(builder: (context) => LoginScreen()),
+                            );
+                          },
+                        style: TextStyle(
+                          decoration: TextDecoration.underline,
+                          fontSize: displaySize.height * .016,
+                          fontWeight: Font.semiBold.weight,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
               ),
+            ),
+            SizedBox(height: displaySize.height * .02),
+          ],
+        ),
       ),
     );
   }
@@ -83,11 +236,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
   Future<void> _register() async {
     if (!_formKey.currentState!.validate()) return;
     setState(() {
-      _isLoading = true;
       _error = null;
     });
     try {
-      // Create user in Firebase Auth
       UserCredential userCredential = await FirebaseAuth.instance.createUserWithEmailAndPassword(
         email: _emailController.text.trim(),
         password: _passwordController.text.trim(),
@@ -96,11 +247,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
       await FirebaseFirestore.instance.collection('users').doc(userCredential.user!.uid).set({
         'fullName': _nameController.text.trim(),
         'email': _emailController.text.trim(),
-        'role': _selectedRole,
+        'role': '',
         'createdAt': FieldValue.serverTimestamp(),
       });
-      // Optionally, navigate to home/dashboard
-      // Navigator.pushReplacementNamed(context, '/dashboard');
     } on FirebaseAuthException catch (e) {
       setState(() {
         _error = e.message;
@@ -110,9 +259,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
         _error = 'An error occurred. Please try again.';
       });
     } finally {
-      setState(() {
-        _isLoading = false;
-      });
+      setState(() {});
     }
   }
 }

@@ -3,8 +3,8 @@ import 'package:clikz_studio/core/constants/colors.dart';
 import 'package:clikz_studio/core/constants/icons.dart';
 import 'package:clikz_studio/core/constants/images.dart';
 import 'package:clikz_studio/core/constants/sizes.dart';
-import 'package:clikz_studio/features/auth/login_credential/login_widget.dart';
 import 'package:clikz_studio/features/auth/register_credential/register_screen.dart';
+import 'package:clikz_studio/features/auth/register_credential/register_widget.dart';
 import 'package:clikz_studio/widgets/button_style_widget.dart';
 import 'package:clikz_studio/widgets/custom_widgets.dart';
 import 'package:clikz_studio/widgets/txt_field_widget.dart';
@@ -93,7 +93,7 @@ class _LoginScreenState extends State<LoginScreen> {
                               'keyboard': TextInputType.emailAddress,
                               'controller': emailcontroller,
                               'input': null,
-                              'validate': LoginWidget.validateEmail,
+                              'validate': RegisterWidget.validateEmail,
                             },
                             {
                               'focusnode': _focus_2,
@@ -111,7 +111,7 @@ class _LoginScreenState extends State<LoginScreen> {
                               'keyboard': TextInputType.visiblePassword,
                               'controller': passwordcontroller,
                               'input': null,
-                              'validate': LoginWidget.validatePassword,
+                              'validate': RegisterWidget.validatePassword,
                               'hidden': true,
                             },
                           ];

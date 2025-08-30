@@ -1,4 +1,37 @@
-class LoginWidget {
+class RegisterWidget {
+  static String? validateName(String? value) {
+    if (value == null || value.trim().isEmpty) {
+      return 'Name is required';
+    }
+    if (value.trim().length < 3) {
+      return 'Name must be at least 3 characters long';
+    }
+    if (!RegExp(r"^[a-zA-Z\s'-]+$").hasMatch(value)) {
+      return 'Name can only contain letters, spaces, hyphens, or apostrophes';
+    }
+    return null;
+  }
+
+  static String? validateCountry(String? value) {
+    if (value == null || value.trim().isEmpty) {
+      return 'Country is required';
+    }
+    return null;
+  }
+
+  static String? validateAddress(String? value) {
+    if (value == null || value.trim().isEmpty) {
+      return 'Address is required';
+    }
+    if (value.trim().length < 5) {
+      return 'Address must be at least 5 characters long';
+    }
+    if (!RegExp(r"^[a-zA-Z0-9\s,.-/#]+$").hasMatch(value)) {
+      return 'Address contains invalid characters';
+    }
+    return null;
+  }
+
   static String? validatePhone(String? value) {
     if (value == null || value.isEmpty) {
       return 'Phone number is required';
