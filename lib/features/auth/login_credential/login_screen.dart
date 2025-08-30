@@ -12,6 +12,10 @@ import 'package:clikz_studio/widgets/txt_field_widget.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:google_sign_in/google_sign_in.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:provider/provider.dart';
+import 'package:clikz_studio/features/auth/auth_provider.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -46,36 +50,14 @@ class _LoginScreenState extends State<LoginScreen> {
 
   //Responce from Client Side
   void submit(login, password) async {
-    try {
-      final credential = await FirebaseAuth.instance.signInWithEmailAndPassword(
-        email: login.trim(),
-        password: password.trim(),
-      );
-      if (!credential.user!.emailVerified) {
-        await credential.user!.sendEmailVerification();
-        showDialog(
-          context: context,
-          builder: (context) => AlertDialog(
-            title: Text('Email not verified'),
-            content: Text(
-              'A verification link has been sent to your email. Please verify before logging in.',
-            ),
-            actions: [TextButton(onPressed: () => Navigator.of(context).pop(), child: Text('OK'))],
-          ),
-        );
-        return;
-      }
-      // Navigate to main screen on successful login
+    final provider = Provider.of<AuthCredentialProvider>(context, listen: false);
+    final credential = await provider.loginWithEmail(
+      context: context,
+      email: login,
+      password: password,
+    );
+    if (credential != null && mounted) {
       Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => MainScreen()));
-    } on FirebaseException catch (e) {
-      showDialog(
-        context: context,
-        builder: (context) => AlertDialog(
-          title: Text('Login Failed'),
-          content: Text(e.message ?? 'Unknown error'),
-          actions: [TextButton(onPressed: () => Navigator.of(context).pop(), child: Text('OK'))],
-        ),
-      );
     }
   }
 
@@ -229,7 +211,19 @@ class _LoginScreenState extends State<LoginScreen> {
                       height: displaySize.height * .06,
                       width: displaySize.width,
                       child: ElevatedButton(
-                        onPressed: () {},
+                        onPressed: () async {
+                          final provider = Provider.of<AuthCredentialProvider>(
+                            context,
+                            listen: false,
+                          );
+                          final result = await provider.signInWithGoogle(context);
+                          if (result != null && mounted) {
+                            Navigator.pushReplacement(
+                              context,
+                              MaterialPageRoute(builder: (context) => MainScreen()),
+                            );
+                          }
+                        },
                         style: ButtonstyleWidget().elevated_boardered_sociallogin(context),
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.center,

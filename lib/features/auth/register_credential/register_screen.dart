@@ -5,14 +5,15 @@ import 'package:clikz_studio/core/constants/images.dart';
 import 'package:clikz_studio/core/constants/sizes.dart';
 import 'package:clikz_studio/features/auth/login_credential/login_screen.dart';
 import 'package:clikz_studio/features/auth/register_credential/register_widget.dart';
+import 'package:clikz_studio/features/dashboard/main_screen.dart';
 import 'package:clikz_studio/widgets/button_style_widget.dart';
 import 'package:clikz_studio/widgets/custom_widgets.dart';
 import 'package:clikz_studio/widgets/txt_field_widget.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:provider/provider.dart';
+import 'package:clikz_studio/features/auth/auth_provider.dart';
 import 'dart:convert';
 
 class RegisterScreen extends StatefulWidget {
@@ -193,7 +194,19 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       height: displaySize.height * .06,
                       width: displaySize.width,
                       child: ElevatedButton(
-                        onPressed: () {},
+                        onPressed: () async {
+                          final provider = Provider.of<AuthCredentialProvider>(
+                            context,
+                            listen: false,
+                          );
+                          final result = await provider.signInWithGoogle(context);
+                          if (result != null && mounted) {
+                            Navigator.pushReplacement(
+                              context,
+                              MaterialPageRoute(builder: (context) => MainScreen()),
+                            );
+                          }
+                        },
                         style: ButtonstyleWidget().elevated_boardered_sociallogin(context),
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.center,
@@ -267,24 +280,16 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
   Future<void> _register(context) async {
     if (!_formKey.currentState!.validate()) return;
-    try {
-      UserCredential userCredential = await FirebaseAuth.instance.createUserWithEmailAndPassword(
-        email: _emailController.text.trim(),
-        password: _passwordController.text.trim(),
-      );
-      // Set displayName for the user
-      await userCredential.user?.updateDisplayName(_nameController.text.trim());
-      await userCredential.user?.reload();
-      await FirebaseFirestore.instance.collection('users').doc(userCredential.user!.uid).set({
-        'Username': _nameController.text.trim(),
-        'Email': _emailController.text.trim(),
-        'Role': 'Member',
-        'CreatedAt': FieldValue.serverTimestamp(),
-        'profileImage': _profileImageBase64 ?? '',
-      });
+    final provider = Provider.of<AuthCredentialProvider>(context, listen: false);
+    final result = await provider.registerWithEmail(
+      context: context,
+      name: _nameController.text,
+      email: _emailController.text,
+      password: _passwordController.text,
+      profileImageBase64: _profileImageBase64,
+    );
+    if (result != null && mounted) {
       Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => LoginScreen()));
-    } on FirebaseException catch (e) {
-      scaffoldMsg(context: context, content: e.message ?? e.toString());
     }
   }
 }

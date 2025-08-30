@@ -48,6 +48,7 @@ dependencies:
   pdf: ^3.10.8
   signature: ^5.4.0
   image_picker: ^1.2.0
+  fl_chart: ^1.0.0
 
 dev_dependencies:
   flutter_test:
