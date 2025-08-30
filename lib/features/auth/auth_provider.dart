@@ -7,21 +7,24 @@ class AuthCredentialProvider with ChangeNotifier {
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
-  bool _google_login_isloading = false;
-  bool get googleLoginLoading => _google_login_isloading;
-  bool _email_login_isloading = false;
-  bool get emailLoginLoading => _email_login_isloading;
+  bool googleLoginLoading = false;
+  bool emailLoginLoading = false;
   bool _email_register_isloading = false;
   bool get emailRegisterLoading => _email_register_isloading;
 
   User? get currentUser => _auth.currentUser;
 
   Future<UserCredential?> signInWithGoogle(BuildContext context) async {
-    _google_login_isloading = true;
+    if (googleLoginLoading) return null;
+    googleLoginLoading = true;
     notifyListeners();
     try {
       final GoogleSignInAccount? googleUser = await GoogleSignIn().signIn();
-      if (googleUser == null) return null; // User cancelled
+      if (googleUser == null) {
+        googleLoginLoading = false;
+        notifyListeners();
+        return null; // User cancelled
+      }
       final GoogleSignInAuthentication googleAuth = await googleUser.authentication;
       final credential = GoogleAuthProvider.credential(
         accessToken: googleAuth.accessToken,
@@ -41,14 +44,14 @@ class AuthCredentialProvider with ChangeNotifier {
           });
         }
       }
+      googleLoginLoading = false;
       notifyListeners();
       return userCredential;
     } catch (e) {
+      googleLoginLoading = false;
+      notifyListeners();
       _showError(context, 'Google sign-in failed: $e');
       return null;
-    } finally {
-      _google_login_isloading = false;
-      notifyListeners();
     }
   }
 
@@ -91,7 +94,8 @@ class AuthCredentialProvider with ChangeNotifier {
     required String email,
     required String password,
   }) async {
-    _email_login_isloading = true;
+    if (emailLoginLoading) return null;
+    emailLoginLoading = true;
     notifyListeners();
     try {
       final credential = await _auth.signInWithEmailAndPassword(
@@ -105,16 +109,18 @@ class AuthCredentialProvider with ChangeNotifier {
           'Email not verified',
           'A verification link has been sent to your email. Please verify before logging in.',
         );
+        emailLoginLoading = false;
+        notifyListeners();
         return null;
       }
+      emailLoginLoading = false;
       notifyListeners();
       return credential;
     } on FirebaseAuthException catch (e) {
+      emailLoginLoading = false;
+      notifyListeners();
       _showError(context, e.message ?? 'Unknown error');
       return null;
-    } finally {
-      _email_login_isloading = false;
-      notifyListeners();
     }
   }
 

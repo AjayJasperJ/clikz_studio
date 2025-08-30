@@ -1,6 +1,7 @@
 {
   "project_info": {
     "project_number": "490264994659",
+    "firebase_url": "https://clikz-studio-default-rtdb.asia-southeast1.firebasedatabase.app",
     "project_id": "clikz-studio",
     "storage_bucket": "clikz-studio.firebasestorage.app"
   },
