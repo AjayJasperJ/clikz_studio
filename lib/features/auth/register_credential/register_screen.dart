@@ -12,6 +12,8 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:image_picker/image_picker.dart';
+import 'dart:convert';
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
@@ -32,6 +34,19 @@ class _RegisterScreenState extends State<RegisterScreen> {
   final _focus_3 = FocusNode();
   final _focus_4 = FocusNode();
 
+  String? _profileImageBase64;
+
+  Future<void> _pickImage() async {
+    final ImagePicker picker = ImagePicker();
+    final XFile? image = await picker.pickImage(source: ImageSource.gallery, imageQuality: 60);
+    if (image != null) {
+      final bytes = await image.readAsBytes();
+      setState(() {
+        _profileImageBase64 = base64Encode(bytes);
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -40,7 +55,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
         'hinttext': 'Username',
         'controller': _nameController,
         'validate': RegisterWidget.validateName,
-        'keyboard': null,
+        'keyboard': TextInputType.name,
         'prefix': icons.person,
         'suffix': null,
         'c_node': _focus_1,
@@ -50,7 +65,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
         'hinttext': 'Email Id',
         'controller': _emailController,
         'validate': RegisterWidget.validateEmail,
-        'keyboard': null,
+        'keyboard': TextInputType.emailAddress,
         'prefix': icons.mail,
         'suffix': null,
         'c_node': _focus_2,
@@ -60,7 +75,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
         'hinttext': 'Password',
         'controller': _passwordController,
         'validate': RegisterWidget.validatePassword,
-        'keyboard': null,
+        'keyboard': TextInputType.visiblePassword,
         'prefix': icons.lock,
         'suffix': icons.unhide,
         'c_node': _focus_3,
@@ -70,7 +85,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
         'hinttext': 'Confirm Password',
         'controller': _confirmPasswordController,
         'validate': RegisterWidget.validatePassword,
-        'keyboard': null,
+        'keyboard': TextInputType.visiblePassword,
         'prefix': icons.lock,
         'suffix': icons.hidden,
         'c_node': _focus_4,
@@ -86,14 +101,18 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 backbutton(),
                 SizedBox(height: displaySize.height * .02),
                 GestureDetector(
-                  onTap: () {},
+                  onTap: _pickImage,
                   child: Column(
                     children: [
                       Container(
                         height: displaySize.height * .14,
                         width: displaySize.height * .14,
                         decoration: BoxDecoration(shape: BoxShape.circle),
-                        child: ClipOval(child: Image.asset(images.emptyprofile, fit: BoxFit.cover)),
+                        child: ClipOval(
+                          child: _profileImageBase64 != null
+                              ? Image.memory(base64Decode(_profileImageBase64!), fit: BoxFit.cover)
+                              : Image.asset(images.emptyprofile, fit: BoxFit.cover),
+                        ),
                       ),
                       SizedBox(height: displaySize.height * .01),
                       txt("+ Add Image", font: Font.medium),
@@ -261,6 +280,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
         'Email': _emailController.text.trim(),
         'Role': 'Member',
         'CreatedAt': FieldValue.serverTimestamp(),
+        'profileImage': _profileImageBase64 ?? '',
       });
       Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => LoginScreen()));
     } on FirebaseException catch (e) {
