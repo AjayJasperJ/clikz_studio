@@ -1,5 +1,6 @@
 import 'package:clikz_studio/app.dart';
 import 'package:clikz_studio/core/constants/images.dart';
+import 'package:clikz_studio/features/auth/auth_screen.dart';
 import 'package:clikz_studio/features/dashboard/main_screen.dart';
 import 'package:clikz_studio/widgets/custom_widgets.dart';
 import 'package:flutter/material.dart';
@@ -20,16 +21,16 @@ class _SplashScreenState extends State<SplashScreen> {
 
   Future<void> GetIn() async {
     await Future.delayed(Duration(milliseconds: 3000));
-    Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => MainScreen()));
+    Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => AuthScreen()));
   }
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    statusbar(theme);
+    status_bar(theme);
     return SafeArea(
       child: Scaffold(
-        body: Center(child: Image.asset(cimages.applogo, height: displaySize.height * .15)),
+        body: Center(child: Image.asset(images.applogo, height: displaySize.height * .15)),
       ),
     );
   }

@@ -1,3 +1,34 @@
-class cicons {
-
+class icons {
+  static final down_arrow = 'assets/icons/down_arrow.png';
+  static final left_arrow = 'assets/icons/left_arrow.png';
+  static final search = 'assets/icons/search.png';
+  static final selected = 'assets/icons/selected.png';
+  static final unselect = 'assets/icons/unselect.png';
+  static final person = 'assets/icons/person.png';
+  static final mail = 'assets/icons/mail.png';
+  static final location = 'assets/icons/location.png';
+  static final account_setting = 'assets/icons/account_setting.png';
+  static final bank = 'assets/icons/bank.png';
+  static final creditcard = 'assets/icons/creditcard.png';
+  static final doc = 'assets/icons/doc.png';
+  static final event_fill = 'assets/icons/event_fill.png';
+  static final event = 'assets/icons/event.png';
+  static final home_fill = 'assets/icons/home_fill.png';
+  static final home = 'assets/icons/home.png';
+  static final logout = 'assets/icons/logout.png';
+  static final message = 'assets/icons/message.png';
+  static final msg_alert = 'assets/icons/msg_alert.png';
+  static final phone = 'assets/icons/phone.png';
+  static final right_arrow = 'assets/icons/right_arrow.png';
+  static final security = 'assets/icons/security.png';
+  static final setting_fill = 'assets/icons/setting_fill.png';
+  static final setting = 'assets/icons/setting.png';
+  static final share = 'assets/icons/share.png';
+  static final upi = 'assets/icons/upi.png';
+  static final edit_profile = 'assets/icons/edit_profile.png';
+  static final lock = 'assets/icons/lock.png';
+  static final hidden = 'assets/icons/hidden.png';
+  static final unhide = 'assets/icons/unhide.png';
+  static final inout = 'assets/icons/inout.png';
+  static final web = 'assets/icons/web.png';
 }
