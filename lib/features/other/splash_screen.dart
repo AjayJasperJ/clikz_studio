@@ -36,7 +36,26 @@ class _SplashScreenState extends State<SplashScreen> {
     status_bar(theme);
     return SafeArea(
       child: Scaffold(
-        body: Center(child: Image.asset(images.applogo, height: displaySize.height * .15)),
+        body: Center(
+          child: SizedBox(
+            height: displaySize.height * .15,
+            width: displaySize.height * .15,
+            child: Container(
+              decoration: BoxDecoration(
+                boxShadow: [
+                  BoxShadow(
+                    color: theme.colorScheme.primary.withValues(alpha: .1),
+                    blurRadius: displaySize.height * .15 / 4,
+                  ),
+                ],
+                shape: BoxShape.circle,
+              ),
+              child: ClipOval(
+                child: Image.asset(images.applogo, isAntiAlias: true, fit: BoxFit.contain),
+              ),
+            ),
+          ),
+        ),
       ),
     );
   }
