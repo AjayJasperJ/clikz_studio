@@ -1,6 +1,7 @@
 import 'package:clikz_studio/app.dart';
 import 'package:clikz_studio/core/constants/colors.dart';
 import 'package:clikz_studio/core/constants/icons.dart';
+import 'package:clikz_studio/core/constants/sizes.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -208,4 +209,20 @@ class backbutton extends StatelessWidget {
       ],
     );
   }
+}
+
+void scaffoldMsg({required BuildContext context, required String content, Color? Bcolor}) {
+  ScaffoldMessenger.of(context).hideCurrentSnackBar();
+
+  ScaffoldMessenger.of(context).showSnackBar(
+    SnackBar(
+      backgroundColor: Bcolor ?? Colors.red,
+      content: txt(
+        content,
+        color: Colors.white,
+        font: Font.medium,
+        size: sizes.labelSmall(context),
+      ),
+    ),
+  );
 }

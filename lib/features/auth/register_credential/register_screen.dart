@@ -27,7 +27,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
   final TextEditingController _passwordController = TextEditingController();
   final TextEditingController _confirmPasswordController = TextEditingController();
 
-  String? _error;
+  final _focus_1 = FocusNode();
+  final _focus_2 = FocusNode();
+  final _focus_3 = FocusNode();
+  final _focus_4 = FocusNode();
 
   @override
   Widget build(BuildContext context) {
@@ -40,6 +43,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
         'keyboard': null,
         'prefix': icons.person,
         'suffix': null,
+        'c_node': _focus_1,
+        'n_node': _focus_2,
       },
       {
         'hinttext': 'Email Id',
@@ -48,6 +53,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
         'keyboard': null,
         'prefix': icons.mail,
         'suffix': null,
+        'c_node': _focus_2,
+        'n_node': _focus_3,
       },
       {
         'hinttext': 'Password',
@@ -56,6 +63,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
         'keyboard': null,
         'prefix': icons.lock,
         'suffix': icons.unhide,
+        'c_node': _focus_3,
+        'n_node': _focus_4,
       },
       {
         'hinttext': 'Confirm Password',
@@ -64,6 +73,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
         'keyboard': null,
         'prefix': icons.lock,
         'suffix': icons.hidden,
+        'c_node': _focus_4,
+        'n_node': null,
       },
     ];
     return Scaffold(
@@ -107,6 +118,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
                             validator: value['validate'],
                             controller: value['controller'],
                             keyboardtype: value['keyboard'],
+                            focusNode: value['c_node'],
+                            nextFocusNode: value['n_node'],
                             prefixIcon: txtfieldicon(context, value['prefix']),
                             suffixIcon: value['suffix'] != null
                                 ? txtfieldicon(context, value['suffix'])
@@ -124,7 +137,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       height: displaySize.height * .06,
                       width: displaySize.width,
                       child: ElevatedButton(
-                        onPressed: () {},
+                        onPressed: () => _register(context),
                         style: ButtonstyleWidget().elevated_filled_apptheme(context),
                         child: txt(
                           'Sign Up',
@@ -233,33 +246,25 @@ class _RegisterScreenState extends State<RegisterScreen> {
     );
   }
 
-  Future<void> _register() async {
+  Future<void> _register(context) async {
     if (!_formKey.currentState!.validate()) return;
-    setState(() {
-      _error = null;
-    });
     try {
       UserCredential userCredential = await FirebaseAuth.instance.createUserWithEmailAndPassword(
         email: _emailController.text.trim(),
         password: _passwordController.text.trim(),
       );
-      // Save additional info in Firestore
+      // Set displayName for the user
+      await userCredential.user?.updateDisplayName(_nameController.text.trim());
+      await userCredential.user?.reload();
       await FirebaseFirestore.instance.collection('users').doc(userCredential.user!.uid).set({
-        'fullName': _nameController.text.trim(),
-        'email': _emailController.text.trim(),
-        'role': '',
-        'createdAt': FieldValue.serverTimestamp(),
+        'Username': _nameController.text.trim(),
+        'Email': _emailController.text.trim(),
+        'Role': 'Member',
+        'CreatedAt': FieldValue.serverTimestamp(),
       });
-    } on FirebaseAuthException catch (e) {
-      setState(() {
-        _error = e.message;
-      });
-    } catch (e) {
-      setState(() {
-        _error = 'An error occurred. Please try again.';
-      });
-    } finally {
-      setState(() {});
+      Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => LoginScreen()));
+    } on FirebaseException catch (e) {
+      scaffoldMsg(context: context, content: e.message ?? e.toString());
     }
   }
 }

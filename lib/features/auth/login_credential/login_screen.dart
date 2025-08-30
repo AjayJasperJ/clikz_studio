@@ -5,11 +5,13 @@ import 'package:clikz_studio/core/constants/images.dart';
 import 'package:clikz_studio/core/constants/sizes.dart';
 import 'package:clikz_studio/features/auth/register_credential/register_screen.dart';
 import 'package:clikz_studio/features/auth/register_credential/register_widget.dart';
+import 'package:clikz_studio/features/dashboard/main_screen.dart';
 import 'package:clikz_studio/widgets/button_style_widget.dart';
 import 'package:clikz_studio/widgets/custom_widgets.dart';
 import 'package:clikz_studio/widgets/txt_field_widget.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -30,7 +32,7 @@ class _LoginScreenState extends State<LoginScreen> {
   void initState() {
     super.initState();
     emailcontroller.text = 'ajayjasperj@outlook.com';
-    passwordcontroller.text = 'pleaseOPEN@99';
+    passwordcontroller.text = 'LetMeGo@7';
   }
 
   @override
@@ -43,7 +45,39 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   //Responce from Client Side
-  void submit(login, password) async {}
+  void submit(login, password) async {
+    try {
+      final credential = await FirebaseAuth.instance.signInWithEmailAndPassword(
+        email: login.trim(),
+        password: password.trim(),
+      );
+      if (!credential.user!.emailVerified) {
+        await credential.user!.sendEmailVerification();
+        showDialog(
+          context: context,
+          builder: (context) => AlertDialog(
+            title: Text('Email not verified'),
+            content: Text(
+              'A verification link has been sent to your email. Please verify before logging in.',
+            ),
+            actions: [TextButton(onPressed: () => Navigator.of(context).pop(), child: Text('OK'))],
+          ),
+        );
+        return;
+      }
+      // Navigate to main screen on successful login
+      Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => MainScreen()));
+    } on FirebaseException catch (e) {
+      showDialog(
+        context: context,
+        builder: (context) => AlertDialog(
+          title: Text('Login Failed'),
+          content: Text(e.message ?? 'Unknown error'),
+          actions: [TextButton(onPressed: () => Navigator.of(context).pop(), child: Text('OK'))],
+        ),
+      );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -55,8 +89,7 @@ class _LoginScreenState extends State<LoginScreen> {
         child: ListConfig(
           child: SingleChildScrollView(
             child: SafeArea(
-              child: Padding(
-                padding: EdgeInsets.symmetric(horizontal: displaySize.width * .04),
+              child: Wpad(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -112,7 +145,7 @@ class _LoginScreenState extends State<LoginScreen> {
                               'controller': passwordcontroller,
                               'input': null,
                               'validate': RegisterWidget.validatePassword,
-                              'hidden': true,
+                              'hidden': false,
                             },
                           ];
                           return Column(
@@ -155,7 +188,11 @@ class _LoginScreenState extends State<LoginScreen> {
                       height: displaySize.height * .06,
                       width: displaySize.width,
                       child: ElevatedButton(
-                        onPressed: () {},
+                        onPressed: () {
+                          if (_formKey.currentState!.validate()) {
+                            submit(emailcontroller.text, passwordcontroller.text);
+                          }
+                        },
                         style: ButtonstyleWidget().elevated_filled_apptheme(context),
                         child: txt(
                           'Login',

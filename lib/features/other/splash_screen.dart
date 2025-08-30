@@ -4,6 +4,7 @@ import 'package:clikz_studio/features/auth/auth_screen.dart';
 import 'package:clikz_studio/features/dashboard/main_screen.dart';
 import 'package:clikz_studio/widgets/custom_widgets.dart';
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -16,12 +17,17 @@ class _SplashScreenState extends State<SplashScreen> {
   @override
   void initState() {
     super.initState();
-    GetIn();
+    _checkLoginStatus();
   }
 
-  Future<void> GetIn() async {
+  Future<void> _checkLoginStatus() async {
+    final user = FirebaseAuth.instance.currentUser;
     await Future.delayed(Duration(milliseconds: 3000));
-    Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => AuthScreen()));
+    if (user != null && user.emailVerified) {
+      Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => MainScreen()));
+    } else {
+      Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => AuthScreen()));
+    }
   }
 
   @override
